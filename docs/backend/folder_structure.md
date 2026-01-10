@@ -45,6 +45,7 @@ backend/
 │   ├── application/
 │   │   └── services/
 │   │       └── EnergyService.ts
+│   │       └── DashboardService.ts
 │   │
 │   ├── infra/
 │   │   ├── database/
@@ -53,13 +54,16 @@ backend/
 │   │   └── repositories/
 │   │       ├── EnergyMeterRepository.ts
 │   │       └── EnergyReadingRepository.ts
+│   │       └── DashboardRepository.ts
 │   │
 │   ├── api/
 │   │   ├── controllers/
 │   │   │   └── EnergyController.ts
+│   │   │   └── DashboardController.ts
 │   │   │
 │   │   └── routes/
 │   │       └── energy.routes.ts
+│   │       └── dashboard.routes.ts
 │   │
 │   ├── shared/
 │   │   └── errors/
