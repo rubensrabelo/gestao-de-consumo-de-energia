@@ -1,6 +1,6 @@
-export const METER_TYPE = {
+export const ENERGY_METER_TYPE = {
     RESIDENTIAL: "RESIDENTIAL",
     SCHOOL: "SCHOOL",
 } as const;
 
-export type MeterType = typeof METER_TYPE[keyof typeof METER_TYPE];
+export type EnergyMeterType = typeof ENERGY_METER_TYPE[keyof typeof ENERGY_METER_TYPE];

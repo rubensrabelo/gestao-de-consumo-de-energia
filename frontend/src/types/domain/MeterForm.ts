@@ -1,5 +1,5 @@
-import type { MeterType } from "../enums/MeterTypeEnum";
+import type { EnergyMeterType } from "../enums/MeterTypeEnum";
 
-export interface MeterForm {
-  type: MeterType;
+export interface EnergyMeterForm {
+  type: EnergyMeterType;
 }
