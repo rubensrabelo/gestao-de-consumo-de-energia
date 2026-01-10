@@ -1,12 +1,11 @@
-import { EnergyMeter } from "../domain/entities/EnergyMeter";
-import { EnergyReading } from "../domain/entities/EnergyReading";
-import { AlertObserver } from "../domain/observers/AlertObserver";
-import { HistoryObserver } from "../domain/observers/HistoryObserver";
-import { ResidentialConsumptionStrategy } from "../domain/strategies/ResidentialConsumptionStrategy";
-import { EnergyMeterRepository } from "../infra/repositories/EnergyMeterRepository";
-import { EnergyReadingRepository } from "../infra/repositories/EnergyReadingRepository";
-import { AppError } from "../shared/errors/AppError";
-
+import { EnergyMeter } from "../../domain/entities/EnergyMeter";
+import { EnergyReading } from "../../domain/entities/EnergyReading";
+import { AlertObserver } from "../../domain/observers/AlertObserver";
+import { HistoryObserver } from "../../domain/observers/HistoryObserver";
+import { ResidentialConsumptionStrategy } from "../../domain/strategies/ResidentialConsumptionStrategy";
+import { EnergyMeterRepository } from "../../infra/repositories/EnergyMeterRepository";
+import { EnergyReadingRepository } from "../../infra/repositories/EnergyReadingRepository";
+import { AppError } from "../../shared/errors/AppError";
 
 export class EnergyService {
   private meterRepository = new EnergyMeterRepository();
