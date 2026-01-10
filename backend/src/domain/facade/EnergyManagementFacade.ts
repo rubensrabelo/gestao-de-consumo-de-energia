@@ -1,4 +1,4 @@
-import { EnergyService } from "../../services/EnergyService";
+import { EnergyService } from "../../application/services/EnergyService";
 
 export class EnergyManagementFacade {
   private service = new EnergyService();
