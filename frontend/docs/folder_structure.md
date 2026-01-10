@@ -4,26 +4,22 @@
 src/
 ├── api/
 │   └── EnergyApiFacade.ts
-│
 ├── components/
 │   ├── Dashboard/
 │   │   ├── ResidentialDashboard.tsx
 │   │   ├── SchoolDashboard.tsx
 │   │   └── Dashboard.tsx
-│   ├── MeterCard/
-│   └── Chart/
-│       └── ConsumptionChart.tsx
-│
-├── hooks
+│   ├── Chart/
+│   │   └── ConsumptionChart.tsx
+│   └── Layout/
+│       └── PublicLayout.tsx
+├── hooks/
 │   └── useEnergyData.ts
-│
 ├── strategies/
 │   └── DashboardStrategy.ts
-│
 ├── pages/
 │   ├── Home.tsx
 │   └── School.tsx
-│
 ├── App.tsx
 ├── index.tsx
 └── types/
