@@ -13,12 +13,8 @@ services:
   api:
     build: .
     container_name: energy_backend
-    command: npm run dev
     ports:
       - "3333:3333"
-    volumes:
-      - .:/app
-      - /app/node_modules
     depends_on:
       - mongo
     env_file:
