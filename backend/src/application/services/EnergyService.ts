@@ -12,6 +12,15 @@ export class EnergyService {
   private meterRepository = new EnergyMeterRepository();
   private readingRepository = new EnergyReadingRepository();
 
+  async getAllMeters() {
+    const meters = await this.meterRepository.findAll();
+    return meters.map(m => ({
+      id: m._id,
+      type: m.type,
+      createdAt: m.createdAt
+    }));
+  }
+
   async createMeter(type: string) {
     if (!type) {
       throw new AppError("Meter type is required");

@@ -24,4 +24,8 @@ export class EnergyMeterRepository {
   async findById(id: string) {
     return EnergyMeterModel.findById(id);
   }
+
+  async findAll() {
+    return EnergyMeterModel.find();
+  }
 }

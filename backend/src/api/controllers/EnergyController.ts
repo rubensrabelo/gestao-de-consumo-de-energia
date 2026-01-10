@@ -17,6 +17,15 @@ export class EnergyController {
     }
   }
 
+  async getAllMeters(req: Request, res: Response): Promise<Response> {
+    try {
+      const meters = await this.service.getAllMeters();
+      return res.status(200).json(meters);
+    } catch (error) {
+      return this.handleError(error, res);
+    }
+  }
+
   async registerReading(req: Request, res: Response): Promise<Response> {
     try {
       const { meterId, value } = req.body;
