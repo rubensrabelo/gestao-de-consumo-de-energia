@@ -1,18 +1,9 @@
-import { EnergyReading } from "../entities/EnergyReading";
-import { ResidentialMeterFactory } from "../factories/ResidentialMeterFactory";
-import { AlertObserver } from "../observers/AlertObserver";
-import { HistoryObserver } from "../observers/HistoryObserver";
+import { EnergyService } from "../../services/EnergyService";
 
 export class EnergyManagementFacade {
-  private meter = new ResidentialMeterFactory().create();
+  private service = new EnergyService();
 
-  constructor() {
-    this.meter.addObserver(new AlertObserver());
-    this.meter.addObserver(new HistoryObserver());
-  }
-
-  registerReading(meterId: string, value: number) {
-    const reading = new EnergyReading(value);
-    this.meter.addReading(reading);
+  async registerReading(meterId: string, value: number) {
+    await this.service.registerReading(meterId, value);
   }
 }
