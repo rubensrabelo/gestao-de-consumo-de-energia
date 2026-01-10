@@ -1,9 +1,15 @@
 import { Router } from "express";
 import { EnergyController } from "../controllers/EnergyController";
 
-const routes = Router();
-const controller = new EnergyController();
+const energyRoutes = Router();
+const energyController = new EnergyController();
 
-routes.post("/reading", controller.registerReading);
+energyRoutes.post("/reading", (req, res) =>
+  energyController.registerReading(req, res)
+);
 
-export default routes;
+energyRoutes.post("/meter", (req, res) =>
+  energyController.createMeter(req, res)
+);
+
+export default energyRoutes;
