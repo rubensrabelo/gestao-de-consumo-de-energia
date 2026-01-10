@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 
 import { connectMongo } from "./infra/database/mongo";
-import energyRoutes from "./interfaces/routes/energy.routes";
+import energyRoutes from "./api/routes/energy.routes";
 
 dotenv.config();
 
