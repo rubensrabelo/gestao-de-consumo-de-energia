@@ -3,7 +3,7 @@ import { EnergyService } from "../../application/services/EnergyService";
 import { AppError } from "../../shared/errors/AppError";
 
 export class EnergyController {
-  private service = new EnergyService();
+  constructor(private service: EnergyService) {}
 
   async createMeter(req: Request, res: Response): Promise<Response> {
     try {

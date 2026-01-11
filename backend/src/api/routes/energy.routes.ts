@@ -1,8 +1,7 @@
 import { Router } from "express";
-import { EnergyController } from "../controllers/EnergyController";
+import { energyController } from "../../config/bootstrapEnergy";
 
 const energyRoutes = Router();
-const energyController = new EnergyController();
 
 energyRoutes.post("/reading", (req, res) =>
   energyController.registerReading(req, res)

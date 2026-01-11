@@ -3,7 +3,7 @@ import { DashboardService } from "../../application/services/DashboardService";
 import { AppError } from "../../shared/errors/AppError";
 
 export class DashboardController {
-  private dashboardService = new DashboardService();
+  constructor(private dashboardService: DashboardService) {}
 
   async show(req: Request, res: Response) {
     const { meterId } = req.params;

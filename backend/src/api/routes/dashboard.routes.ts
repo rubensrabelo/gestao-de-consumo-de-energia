@@ -1,12 +1,8 @@
 import { Router } from "express";
-import { DashboardController } from "../controllers/DashboardController";
+import { dashboardController } from "../../config/bootstrapDashboard";
 
 const dashboardRoutes = Router();
-const controller = new DashboardController();
 
-dashboardRoutes.get(
-  "/meters/:meterId",
-  controller.show.bind(controller)
-);
+dashboardRoutes.get("/meters/:meterId", (req, res) => dashboardController.show(req, res));
 
-export { dashboardRoutes };
+export default dashboardRoutes;

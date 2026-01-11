@@ -3,8 +3,10 @@ import { EnergyMeterRepository } from "../../infra/repositories/EnergyMeterRepos
 import { AppError } from "../../shared/errors/AppError";
 
 export class DashboardService {
-  private dashboardRepository = new DashboardRepository();
-  private meterRepository = new EnergyMeterRepository();
+  constructor(
+    private dashboardRepository: DashboardRepository,
+    private meterRepository: EnergyMeterRepository
+  ) {}
 
   async getMeterDashboard(meterId: string) {
     if (!meterId) {

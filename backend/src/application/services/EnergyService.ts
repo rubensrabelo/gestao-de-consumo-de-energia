@@ -1,6 +1,4 @@
 import { EnergyReading } from "../../domain/entities/EnergyReading";
-import { AlertObserver } from "../../domain/observers/AlertObserver";
-import { HistoryObserver } from "../../domain/observers/HistoryObserver";
 import { EnergyMeterFactoryProvider } from "../../domain/factories/EnergyMeterFactoryProvider";
 import { EnergyMeterRepository } from "../../infra/repositories/EnergyMeterRepository";
 import { EnergyReadingRepository } from "../../infra/repositories/EnergyReadingRepository";
@@ -8,8 +6,10 @@ import { AppError } from "../../shared/errors/AppError";
 import { EnergyMeter } from "../../domain/entities/EnergyMeter";
 
 export class EnergyService {
-  private meterRepository = new EnergyMeterRepository();
-  private readingRepository = new EnergyReadingRepository();
+  constructor(
+    private meterRepository: EnergyMeterRepository,
+    private readingRepository: EnergyReadingRepository
+  ) {}
 
   async getAllMeters(): Promise<{ id: string; type: string; createdAt: Date }[]> {
     const meters = await this.meterRepository.findAll();
@@ -27,8 +27,7 @@ export class EnergyService {
     }
 
     // Validação e criação via provider
-    const factory = EnergyMeterFactoryProvider.getFactory(type);
-    const meter: EnergyMeter = factory.create();
+    EnergyMeterFactoryProvider.getFactory(type);
 
     const savedMeter = await this.meterRepository.create(type);
 
@@ -56,11 +55,7 @@ export class EnergyService {
     const factory = EnergyMeterFactoryProvider.getFactory(meterData.type);
     const meter: EnergyMeter = factory.create();
 
-    meter.addObserver(new AlertObserver());
-    meter.addObserver(new HistoryObserver());
-
-    const reading = new EnergyReading(value);
-    meter.addReading(reading);
+    meter.addReading(new EnergyReading(value));
 
     await this.readingRepository.save(meterId, value);
   }
