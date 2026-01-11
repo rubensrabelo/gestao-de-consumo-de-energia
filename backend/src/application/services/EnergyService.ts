@@ -15,7 +15,7 @@ export class EnergyService {
     const meters = await this.meterRepository.findAll();
 
     return meters.map((m: any) => ({
-      id: m._id,
+      id: m._id.toString(),
       type: m.type,
       createdAt: m.createdAt
     }));
@@ -32,7 +32,7 @@ export class EnergyService {
     const savedMeter = await this.meterRepository.create(type);
 
     return {
-      id: savedMeter.id,
+      id: savedMeter._id.toString(),
       type: savedMeter.type,
       createdAt: savedMeter.createdAt
     };

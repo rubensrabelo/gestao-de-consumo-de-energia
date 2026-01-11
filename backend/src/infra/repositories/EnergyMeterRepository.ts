@@ -1,31 +1,16 @@
-import mongoose, { Schema, Document } from "mongoose";
-
-interface EnergyMeterDocument extends Document {
-  type: string;
-  createdAt: Date;
-}
-
-const EnergyMeterSchema = new Schema<EnergyMeterDocument>({
-  type: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now }
-});
-
-const EnergyMeterModel = mongoose.model<EnergyMeterDocument>(
-  "EnergyMeter",
-  EnergyMeterSchema
-);
+import { EnergyMeterModel, EnergyMeterDocument } from "./models/EnergyMeter";
 
 export class EnergyMeterRepository {
-  async create(type: string) {
+  async create(type: string): Promise<EnergyMeterDocument> {
     const meter = new EnergyMeterModel({ type });
     return meter.save();
   }
 
-  async findById(id: string) {
+  async findById(id: string): Promise<EnergyMeterDocument | null> {
     return EnergyMeterModel.findById(id);
   }
 
-  async findAll() {
+  async findAll(): Promise<EnergyMeterDocument[]> {
     return EnergyMeterModel.find();
   }
 }

@@ -1,29 +1,12 @@
-import mongoose, { Schema, Document } from "mongoose";
-
-interface EnergyReadingDocument extends Document {
-  meterId: string;
-  value: number;
-  timestamp: Date;
-}
-
-const EnergyReadingSchema = new Schema<EnergyReadingDocument>({
-  meterId: { type: String, required: true },
-  value: { type: Number, required: true },
-  timestamp: { type: Date, default: Date.now }
-});
-
-const EnergyReadingModel = mongoose.model<EnergyReadingDocument>(
-  "EnergyReading",
-  EnergyReadingSchema
-);
+import { EnergyReadingModel, EnergyReadingDocument } from "./models/EnergyReading";
 
 export class EnergyReadingRepository {
-  async save(meterId: string, value: number) {
+  async save(meterId: string, value: number): Promise<EnergyReadingDocument> {
     const reading = new EnergyReadingModel({ meterId, value });
     return reading.save();
   }
 
-  async findByMeter(meterId: string) {
+  async findByMeter(meterId: string): Promise<EnergyReadingDocument[]> {
     return EnergyReadingModel.find({ meterId });
   }
 }
