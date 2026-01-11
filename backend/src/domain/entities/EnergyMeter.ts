@@ -1,44 +1,49 @@
 import { EnergyReading } from "./EnergyReading";
 import { ConsumptionCalculationStrategy } from "../strategies/ConsumptionCalculationStrategy";
-import { ConsumptionState } from "../states/ConsumptionState";
-import { Observer } from "../observers/Observer";
-import { ConsumptionStateProvider } from "../states/ConsumptionStateProvider";
-import { ConsumptionStateType } from "../states/enums/ConsumptionStateType";
+import { EnergyMeterAnalyzer } from "./analyzers/EnergyMeterAnalyzer";
+import { EnergyMeterObservers } from "./components/EnergyMeterObservers";
+import { EnergyMeterReadings } from "./components/EnergyMeterReadings";
+import { EnergyMeterState } from "./components/EnergyMeterState";
 
 export class EnergyMeter {
-  private readings: EnergyReading[] = [];
-  private observers: Observer[] = [];
-  private state: ConsumptionState;
+  private readonly readings: EnergyMeterReadings;
+  private readonly observers: EnergyMeterObservers;
+  private readonly state: EnergyMeterState;
+  private readonly analyzer: EnergyMeterAnalyzer;
 
-  constructor(
-    private readonly strategy: ConsumptionCalculationStrategy
-  ) {
-    this.state = ConsumptionStateProvider.get(
-      ConsumptionStateType.NORMAL
-    );
+  constructor(strategy: ConsumptionCalculationStrategy) {
+    this.readings = new EnergyMeterReadings();
+    this.observers = new EnergyMeterObservers();
+    this.state = new EnergyMeterState();
+    this.analyzer = new EnergyMeterAnalyzer(strategy);
   }
 
-  addObserver(observer: Observer): void {
-    this.observers.push(observer);
+  addObserver(observer: any): void {
+    this.observers.add(observer);
   }
 
-  notify(event: string): void {
-    this.observers.forEach(o => o.update(event));
+  notify(event: string) {
+    this.observers.notify(event);
   }
 
   addReading(reading: EnergyReading): void {
-    this.readings.push(reading);
+    this.readings.add(reading);
     this.analyze();
   }
 
   private analyze(): void {
-    const value = this.strategy.calculate(this.readings);
+    const value = this.analyzer.calculate(
+      this.readings.getAll()
+    );
 
-    const nextStateType = this.state.handle(this, value);
+    const currentState = this.state.get();
+    const nextStateType = currentState.handle(this, value);
 
     if (nextStateType) {
-      this.state = ConsumptionStateProvider.get(nextStateType);
-      this.notify(`State changed to ${nextStateType}`);
+      this.state.change(nextStateType);
+      this.observers.notify(
+        `State changed to ${nextStateType}`
+      );
     }
   }
 }
