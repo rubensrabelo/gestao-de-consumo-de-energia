@@ -1,11 +1,12 @@
-import { ConsumptionState } from "./ConsumptionState";
 import { EnergyMeter } from "../entities/EnergyMeter";
-import { WarningState } from "./WarningState";
+import { ConsumptionState } from "./ConsumptionState";
+import { ConsumptionStateType } from "./enums/ConsumptionStateType";
 
 export class NormalState implements ConsumptionState {
-  handle(context: EnergyMeter, value: number) {
+  handle(_context: EnergyMeter, value: number): ConsumptionStateType | null {
     if (value > 500) {
-      context.changeState(new WarningState());
+      return ConsumptionStateType.WARNING;
     }
+    return null;
   }
 }

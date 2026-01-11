@@ -1,38 +1,44 @@
 import { EnergyReading } from "./EnergyReading";
 import { ConsumptionCalculationStrategy } from "../strategies/ConsumptionCalculationStrategy";
 import { ConsumptionState } from "../states/ConsumptionState";
-import { NormalState } from "../states/NormalState";
 import { Observer } from "../observers/Observer";
+import { ConsumptionStateProvider } from "../states/ConsumptionStateProvider";
+import { ConsumptionStateType } from "../states/enums/ConsumptionStateType";
 
 export class EnergyMeter {
   private readings: EnergyReading[] = [];
   private observers: Observer[] = [];
+  private state: ConsumptionState;
 
   constructor(
-    private strategy: ConsumptionCalculationStrategy,
-    private state: ConsumptionState = new NormalState()
-  ) {}
+    private readonly strategy: ConsumptionCalculationStrategy
+  ) {
+    this.state = ConsumptionStateProvider.get(
+      ConsumptionStateType.NORMAL
+    );
+  }
 
-  addObserver(observer: Observer) {
+  addObserver(observer: Observer): void {
     this.observers.push(observer);
   }
 
-  notify(event: string) {
+  notify(event: string): void {
     this.observers.forEach(o => o.update(event));
   }
 
-  addReading(reading: EnergyReading) {
+  addReading(reading: EnergyReading): void {
     this.readings.push(reading);
     this.analyze();
   }
 
-  analyze() {
+  private analyze(): void {
     const value = this.strategy.calculate(this.readings);
-    this.state.handle(this, value);
-  }
 
-  changeState(state: ConsumptionState) {
-    this.state = state;
-    this.notify(`State changed to ${state.constructor.name}`);
+    const nextStateType = this.state.handle(this, value);
+
+    if (nextStateType) {
+      this.state = ConsumptionStateProvider.get(nextStateType);
+      this.notify(`State changed to ${nextStateType}`);
+    }
   }
 }
