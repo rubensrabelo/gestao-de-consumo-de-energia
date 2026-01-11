@@ -1,9 +1,7 @@
 import { EnergyReading } from "../../domain/entities/EnergyReading";
-import { EnergyMeterFactory } from "../../domain/factories/EnergyMeterFactory";
-import { ResidentialMeterFactory } from "../../domain/factories/ResidentialMeterFactory";
-import { SchoolMeterFactory } from "../../domain/factories/SchoolMeterFactory";
 import { AlertObserver } from "../../domain/observers/AlertObserver";
 import { HistoryObserver } from "../../domain/observers/HistoryObserver";
+import { EnergyMeterFactoryProvider } from "../../domain/factories/EnergyMeterFactoryProvider";
 import { EnergyMeterRepository } from "../../infra/repositories/EnergyMeterRepository";
 import { EnergyReadingRepository } from "../../infra/repositories/EnergyReadingRepository";
 import { AppError } from "../../shared/errors/AppError";
@@ -14,6 +12,7 @@ export class EnergyService {
 
   async getAllMeters() {
     const meters = await this.meterRepository.findAll();
+
     return meters.map(m => ({
       id: m._id,
       type: m.type,
@@ -26,22 +25,8 @@ export class EnergyService {
       throw new AppError("Meter type is required");
     }
 
-    let factory: EnergyMeterFactory;
-
-    switch (type) {
-      case "RESIDENTIAL":
-        factory = new ResidentialMeterFactory();
-        break;
-
-      case "SCHOOL":
-        factory = new SchoolMeterFactory();
-        break;
-
-      default:
-        throw new AppError("Invalid meter type");
-    }
-
-    const meter = factory.create();
+    // Validação de domínio: garante que o tipo de medidor é suportado
+    EnergyMeterFactoryProvider.getFactory(type);
 
     const savedMeter = await this.meterRepository.create(type);
 
@@ -67,21 +52,7 @@ export class EnergyService {
       throw new AppError("Energy meter not found", 404);
     }
 
-    let factory: EnergyMeterFactory;
-
-    switch (meterData.type) {
-      case "RESIDENTIAL":
-        factory = new ResidentialMeterFactory();
-        break;
-
-      case "SCHOOL":
-        factory = new SchoolMeterFactory();
-        break;
-
-      default:
-        throw new AppError("Invalid meter type");
-    }
-
+    const factory = EnergyMeterFactoryProvider.getFactory(meterData.type);
     const meter = factory.create();
 
     meter.addObserver(new AlertObserver());
