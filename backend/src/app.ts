@@ -3,7 +3,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 
 import { connectMongo } from "./infra/database/mongo";
-import energyRoutes from "./api/routes/energy.routes";
+import energyMeterRoutes from "./api/routes/energyMeter.routes";
+import energyReadingRoutes from "./api/routes/energyReading.routes";
 import dashboardRoutes from "./api/routes/dashboard.routes";
 
 dotenv.config();
@@ -16,7 +17,8 @@ app.use(express.json());
 
 connectMongo();
 
-app.use("/energy", energyRoutes);
+app.use("/energy", energyMeterRoutes);
+app.use("/energy", energyReadingRoutes);
 app.use("/dashboard", dashboardRoutes);
 
 export default app;

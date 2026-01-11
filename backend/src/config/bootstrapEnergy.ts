@@ -1,11 +1,15 @@
-import { EnergyController } from "../api/controllers/EnergyController";
-import { EnergyService } from "../application/services/EnergyService";
+import { EnergyMeterService } from "../application/services/EnergyMeterService";
+import { EnergyReadingService } from "../application/services/EnergyReadingService";
 import { EnergyMeterRepository } from "../infra/repositories/EnergyMeterRepository";
 import { EnergyReadingRepository } from "../infra/repositories/EnergyReadingRepository";
+import { EnergyMeterController } from "../api/controllers/EnergyMeterController";
+import { EnergyReadingController } from "../api/controllers/EnergyReadingController";
 
 const meterRepository = new EnergyMeterRepository();
 const readingRepository = new EnergyReadingRepository();
 
-const energyService = new EnergyService(meterRepository, readingRepository);
+const meterService = new EnergyMeterService(meterRepository);
+const readingService = new EnergyReadingService(meterRepository, readingRepository);
 
-export const energyController = new EnergyController(energyService);
+export const energyMeterController = new EnergyMeterController(meterService);
+export const energyReadingController = new EnergyReadingController(readingService);

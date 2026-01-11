@@ -1,16 +1,14 @@
 import { Request, Response } from "express";
-import { EnergyService } from "../../application/services/EnergyService";
+import { EnergyMeterService } from "../../application/services/EnergyMeterService";
 import { AppError } from "../../shared/errors/AppError";
 
-export class EnergyController {
-  constructor(private service: EnergyService) {}
+export class EnergyMeterController {
+  constructor(private service: EnergyMeterService) {}
 
   async createMeter(req: Request, res: Response): Promise<Response> {
     try {
       const { type } = req.body;
-
       const meter = await this.service.createMeter(type);
-
       return res.status(201).json(meter);
     } catch (error) {
       return this.handleError(error, res);
@@ -26,30 +24,11 @@ export class EnergyController {
     }
   }
 
-  async registerReading(req: Request, res: Response): Promise<Response> {
-    try {
-      const { meterId, value } = req.body;
-
-      await this.service.registerReading(meterId, value);
-
-      return res.status(201).json({
-        message: "Energy reading registered successfully"
-      });
-    } catch (error) {
-      return this.handleError(error, res);
-    }
-  }
-
   private handleError(error: unknown, res: Response): Response {
-    if (error instanceof AppError) {
-      return res.status(error.statusCode).json({
-        message: error.message
-      });
-    }
+    if (error instanceof AppError)
+      return res.status(error.statusCode).json({ message: error.message });
 
     console.error(error);
-    return res.status(500).json({
-      message: "Internal server error"
-    });
+    return res.status(500).json({ message: "Internal server error" });
   }
 }
