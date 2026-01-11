@@ -1,13 +1,16 @@
 import { EnergyMeter } from "../entities/EnergyMeter";
 import { EnergyMeterFactory } from "./EnergyMeterFactory";
-import { SchoolConsumptionStrategy } from "../strategies/SchoolConsumptionStrategy";
+import { EnergyMeterTypeFactory } from "./EnergyMeterTypeFactory";
+import { ConsumptionCalculationStrategy } from "../strategies/ConsumptionCalculationStrategy";
 
-export class SchoolMeterFactory implements EnergyMeterFactory {
+export class SchoolMeterFactory
+  implements EnergyMeterTypeFactory {
+
   constructor(
-    private readonly strategy: SchoolConsumptionStrategy
+    private readonly strategy: ConsumptionCalculationStrategy
   ) {}
 
   create(): EnergyMeter {
-    return new EnergyMeter(this.strategy);
+    return EnergyMeterFactory.create(this.strategy);
   }
 }

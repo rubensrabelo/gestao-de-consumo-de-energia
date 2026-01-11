@@ -1,28 +1,22 @@
 import { EnergyReading } from "./EnergyReading";
-import { ConsumptionCalculationStrategy } from "../strategies/ConsumptionCalculationStrategy";
 import { EnergyMeterAnalyzer } from "./analyzers/EnergyMeterAnalyzer";
 import { EnergyMeterObservers } from "./components/EnergyMeterObservers";
 import { EnergyMeterReadings } from "./components/EnergyMeterReadings";
 import { EnergyMeterState } from "./components/EnergyMeterState";
 
 export class EnergyMeter {
-  private readonly readings: EnergyMeterReadings;
-  private readonly observers: EnergyMeterObservers;
-  private readonly state: EnergyMeterState;
-  private readonly analyzer: EnergyMeterAnalyzer;
-
-  constructor(strategy: ConsumptionCalculationStrategy) {
-    this.readings = new EnergyMeterReadings();
-    this.observers = new EnergyMeterObservers();
-    this.state = new EnergyMeterState();
-    this.analyzer = new EnergyMeterAnalyzer(strategy);
-  }
+  constructor(
+    private readonly readings: EnergyMeterReadings,
+    private readonly observers: EnergyMeterObservers,
+    private readonly state: EnergyMeterState,
+    private readonly analyzer: EnergyMeterAnalyzer
+  ) {}
 
   addObserver(observer: any): void {
     this.observers.add(observer);
   }
 
-  notify(event: string) {
+  notify(event: string): void {
     this.observers.notify(event);
   }
 
@@ -36,8 +30,9 @@ export class EnergyMeter {
       this.readings.getAll()
     );
 
-    const currentState = this.state.get();
-    const nextStateType = currentState.handle(this, value);
+    const nextStateType = this.state
+      .get()
+      .handle(this, value);
 
     if (nextStateType) {
       this.state.change(nextStateType);

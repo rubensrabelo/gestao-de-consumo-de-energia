@@ -1,12 +1,15 @@
-import { EnergyMeterFactory } from "./EnergyMeterFactory";
 import { ResidentialMeterFactory } from "./ResidentialMeterFactory";
 import { SchoolMeterFactory } from "./SchoolMeterFactory";
+import { EnergyMeterTypeFactory } from "./EnergyMeterTypeFactory";
 import { ResidentialConsumptionStrategy } from "../strategies/ResidentialConsumptionStrategy";
 import { SchoolConsumptionStrategy } from "../strategies/SchoolConsumptionStrategy";
 import { AppError } from "../../shared/errors/AppError";
 
 export class EnergyMeterFactoryProvider {
-  private static factories: Record<string, EnergyMeterFactory> = {
+  private static readonly factories: Record<
+    string,
+    EnergyMeterTypeFactory
+  > = {
     RESIDENTIAL: new ResidentialMeterFactory(
       new ResidentialConsumptionStrategy()
     ),
@@ -15,7 +18,7 @@ export class EnergyMeterFactoryProvider {
     )
   };
 
-  static getFactory(type: string): EnergyMeterFactory {
+  static getFactory(type: string): EnergyMeterTypeFactory {
     const factory = this.factories[type];
     if (!factory) {
       throw new AppError("Invalid meter type");
