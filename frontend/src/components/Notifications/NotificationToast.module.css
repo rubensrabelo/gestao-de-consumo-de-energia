@@ -1,0 +1,54 @@
+.container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 9999;
+}
+
+.toast {
+  position: relative;
+  background: var(--primary);
+  color: white;
+  padding: 16px 20px 16px 20px; /* espaço interno só pro texto */
+  border-radius: var(--radius);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  font-weight: 500;
+  animation: slideIn 0.3s ease-out;
+}
+
+.toast span {
+  display: block;
+}
+
+.closeBtn {
+  position: absolute;
+  top: -10px;    /* sobe um pouco acima da borda */
+  right: -10px;  /* desloca para fora da notificação */
+  width: 24px;
+  height: 24px;
+  background: #ff4d4f; /* círculo vermelho */
+  border-radius: 50%;
+  border: none;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: background 0.2s;
+}
+
+.closeBtn:hover {
+  background: #ff7875;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
