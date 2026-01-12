@@ -1,5 +1,5 @@
 :root {
-  --bg: #ffffff;
+  --bg: #f9fafb;
   --surface: #ffffff;
   --border: #e5e7eb;
 
@@ -9,11 +9,11 @@
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
 
-  --radius: 10px;
+  --radius: 12px;
 }
 
 body {
-  background: var(--bg);
+  background: linear-gradient(180deg, #f9fafb, #ffffff);
   min-height: 100vh;
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--text);
