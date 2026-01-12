@@ -6,6 +6,7 @@ import { EnergyMeterReadings } from "../entities/components/EnergyMeterReadings"
 import { EnergyMeterState } from "../entities/components/EnergyMeterState";
 import { HistoryObserver } from "../observers/HistoryObserver";
 import { AlertObserver } from "../observers/AlertObserver";
+import { FrontendNotificationObserver } from "../observers/FrontendNotificationObserver";
 
 export class EnergyMeterFactory {
   static create(
@@ -20,6 +21,7 @@ export class EnergyMeterFactory {
 
     meter.addObserver(new AlertObserver());
     meter.addObserver(new HistoryObserver());
+    meter.addObserver(new FrontendNotificationObserver());
 
     return meter;
   }
