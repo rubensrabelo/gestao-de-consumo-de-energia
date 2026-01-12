@@ -1,4 +1,8 @@
 .header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+
   display: flex;
   justify-content: center;
   align-items: center;
@@ -7,7 +11,8 @@
   margin-bottom: 48px;
 
   background: linear-gradient(135deg, var(--primary), var(--primary-hover));
-  border-radius: var(--radius);
+  border-bottom-left-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
 }
 
 .brand {

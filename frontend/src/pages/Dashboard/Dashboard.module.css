@@ -4,6 +4,28 @@
   gap: 32px;
 }
 
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  margin-bottom: 16px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  color: var(--primary);
+  text-decoration: none;
+
+  cursor: pointer;
+  width: fit-content;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+  color: var(--primary-hover);
+}
+
 .header {
   display: flex;
   justify-content: space-between;

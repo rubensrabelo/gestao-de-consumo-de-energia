@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useState } from "react";
 
 import { useDashboard } from "./hooks/useDashboard";
@@ -17,6 +17,11 @@ export default function Dashboard() {
 
   return (
     <div className={styles.container}>
+      <Link to="/" className={styles.backLink}>
+        ← Voltar para a tela inicial
+      </Link>
+
+
       <header className={styles.header}>
         <div>
           <h1>Dashboard de Consumo</h1>

@@ -12,13 +12,22 @@
   --radius: 12px;
 }
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
 body {
   background: linear-gradient(180deg, #f9fafb, #ffffff);
   min-height: 100vh;
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--text);
 
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 48px 20px 64px;
+
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
 }
