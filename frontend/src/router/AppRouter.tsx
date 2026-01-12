@@ -10,7 +10,7 @@ export default function AppRouter() {
       <Routes>
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/dashboard/:id" element={<Dashboard />} />
+          <Route path="/dashboard/:meterId" element={<Dashboard />} />
         </Route>
       </Routes>
     </BrowserRouter>

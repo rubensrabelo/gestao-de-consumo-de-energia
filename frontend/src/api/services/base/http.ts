@@ -1,5 +1,9 @@
 import ENV from "../../../config/envConfig";
 
+interface HttpErrorResponse {
+  message?: string;
+}
+
 export async function http<T>(
   url: string,
   options?: RequestInit
@@ -12,7 +16,18 @@ export async function http<T>(
   });
 
   if (!response.ok) {
-    throw new Error("Erro na requisição");
+    let errorMessage = "Erro na requisição";
+
+    try {
+      const errorBody: HttpErrorResponse = await response.json();
+      if (errorBody.message) {
+        errorMessage = errorBody.message;
+      }
+    } catch {
+      // ignora erro de parse
+    }
+
+    throw new Error(errorMessage);
   }
 
   return response.json();
