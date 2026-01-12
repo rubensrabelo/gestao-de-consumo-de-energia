@@ -1,36 +1,16 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { getAllMeters } from "../../api/services/meter/getAllMeters";
-import { createMeter } from "../../api/services/meter/createMeter";
-
-import type { EnergyMeter } from "../../types/domain/Meter";
-import type { EnergyMeterType } from "../../types/enums/MeterTypeEnum";
-
+import { useMeters } from "./hooks/useMeters";
 import { CreateMeterModal } from "./components/CreateMeterModal/CreateMeterModal";
 import { MeterCard } from "./components/MeterCard/MeterCard";
 
 import styles from "./Home.module.css";
 
 export default function Home() {
-  const [meters, setMeters] = useState<EnergyMeter[]>([]);
+  const { meters, createNewMeter } = useMeters();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
-
-  async function loadMeters() {
-    const data = await getAllMeters();
-    setMeters(data);
-  }
-
-  async function handleCreate(type: EnergyMeterType) {
-    await createMeter({ type });
-    setIsModalOpen(false);
-    loadMeters();
-  }
-
-  useEffect(() => {
-    loadMeters();
-  }, []);
 
   return (
     <div className={styles.container}>
@@ -54,7 +34,10 @@ export default function Home() {
       <CreateMeterModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onConfirm={handleCreate}
+        onConfirm={async (type) => {
+          await createNewMeter(type);
+          setIsModalOpen(false);
+        }}
       />
     </div>
   );

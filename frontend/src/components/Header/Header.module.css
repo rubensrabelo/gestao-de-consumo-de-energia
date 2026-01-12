@@ -1,0 +1,11 @@
+.header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 40px;
+
+  color: var(--primary);
+  border-bottom: 1px solid var(--border);
+}

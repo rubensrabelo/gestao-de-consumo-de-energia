@@ -5,21 +5,20 @@ import {
 } from "../../../../types/enums/MeterTypeEnum";
 import styles from "./MeterCard.module.css";
 
-interface Props {
+interface MeterCardProps {
   meter: EnergyMeter;
   onClick: () => void;
 }
 
-function translateType(type: EnergyMeterType) {
-  return type === ENERGY_METER_TYPE.RESIDENTIAL
-    ? "Residencial"
-    : "Escolar";
-}
+const METER_TYPE_LABEL: Record<EnergyMeterType, string> = {
+  [ENERGY_METER_TYPE.RESIDENTIAL]: "Residencial",
+  [ENERGY_METER_TYPE.SCHOOL]: "Escolar",
+};
 
-export function MeterCard({ meter, onClick }: Props) {
+export function MeterCard({ meter, onClick }: MeterCardProps) {
   return (
     <div className={styles.card} onClick={onClick}>
-      <strong>{translateType(meter.type)}</strong>
+      <strong>{METER_TYPE_LABEL[meter.type]}</strong>
       <span>ID: {meter.id}</span>
     </div>
   );

@@ -5,26 +5,35 @@ import {
 } from "../../../../types/enums/MeterTypeEnum";
 import styles from "./CreateMeterModal.module.css";
 
-interface Props {
+interface CreateMeterModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (type: EnergyMeterType) => void;
 }
 
-export function CreateMeterModal({ isOpen, onClose, onConfirm }: Props) {
+export function CreateMeterModal({
+  isOpen,
+  onClose,
+  onConfirm,
+}: CreateMeterModalProps) {
   const [type, setType] = useState<EnergyMeterType>(
     ENERGY_METER_TYPE.RESIDENTIAL
   );
 
   if (!isOpen) return null;
 
+  function handleConfirm() {
+    onConfirm(type);
+  }
+
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
         <h2>Criar medidor</h2>
 
-        <label>Tipo do medidor</label>
+        <label htmlFor="meterType">Tipo do medidor</label>
         <select
+          id="meterType"
           value={type}
           onChange={(e) => setType(e.target.value as EnergyMeterType)}
         >
@@ -40,10 +49,7 @@ export function CreateMeterModal({ isOpen, onClose, onConfirm }: Props) {
           <button className={styles.cancel} onClick={onClose}>
             Cancelar
           </button>
-          <button
-            className={styles.confirm}
-            onClick={() => onConfirm(type)}
-          >
+          <button className={styles.confirm} onClick={handleConfirm}>
             Criar
           </button>
         </div>
