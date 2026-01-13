@@ -2,6 +2,8 @@
 
 **Autor:** Rubens Rabêlo Soares
 
+[Repositório no Github](https://github.com/rubensrabelo/gestao-de-consumo-de-energia)
+
 ## 1. Introdução
 
 O crescente interesse por soluções que promovam o uso consciente de recursos energéticos tem impulsionado o desenvolvimento de sistemas voltados ao monitoramento e análise do consumo de energia elétrica. Nesse contexto, este projeto propõe o desenvolvimento de um sistema capaz de realizar o cadastro de medidores, o registro de leituras diárias e a apresentação das informações por meio de dashboards, possibilitando uma análise clara e objetiva dos dados de consumo.
