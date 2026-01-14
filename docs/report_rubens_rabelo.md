@@ -152,7 +152,75 @@ backend/
 - Utilização de ObjectId para referência de medidores
 - Agregações para cálculo de consumo total, médio e diário
 
-### 2.4 Fluxo de Dados
+
+### 2.4. Diagrama de Arquitetura e Comunicação com o Backend
+
+```mermaid
+flowchart LR
+
+    %% Front-end
+    subgraph Frontend
+        Pages
+        PageComponents
+        PageHooks
+        GlobalComponents
+        Context
+        Router
+        APIServices
+        SocketClient
+
+        Pages --> PageComponents
+        Pages --> PageHooks
+        Pages --> Router
+        GlobalComponents --> Pages
+        Context --> GlobalComponents
+        PageHooks --> APIServices
+        SocketClient --> Context
+    end
+
+    %% Back-end
+    subgraph Backend
+        Routes
+        Controllers
+        Services
+        Domain
+        Repositories
+        SocketServer
+    end
+
+    %% Domain
+    subgraph DomainLayer
+        Entities
+        Factories
+        Strategies
+        States
+        Observers
+    end
+
+    %% Infra
+    subgraph Infrastructure
+        MongoDB
+    end
+
+    %% Comunicação
+    APIServices --> Routes
+    Routes --> Controllers
+    Controllers --> Services
+    Services --> Repositories
+    Repositories --> MongoDB
+
+    Services --> Domain
+    Domain --> Entities
+    Domain --> Factories
+    Domain --> Strategies
+    Domain --> States
+    Domain --> Observers
+
+    Observers --> SocketServer
+    SocketServer --> SocketClient
+```
+
+### 2.5 Fluxo de Dados
 1. Usuário insere o tipo de medidor Residêncial ou Escolar
 2. Usuário acessa o dashboard de um medidor específico
 3. Usuário insere o valor do consumo de energia
@@ -748,24 +816,26 @@ classDiagram
 classDiagram
     class DashboardController {
         - dashboardService: DashboardService
-        + show(req: Request, res: Response)
+        + constructor(private dashboardService: DashboardService)
+        + show(req: Request, res: Response) Promise
     }
 
     class DashboardService {
         - dashboardRepository: DashboardRepository
         - meterRepository: EnergyMeterRepository
-        + getMeterDashboard(meterId: string)
+        + constructor(dashboardRepository: DashboardRepository, meterRepository: EnergyMeterRepository)
+        + getMeterDashboard(meterId: string) Promise
     }
 
     class DashboardRepository {
-        + getConsumptionSummary(meterId: string)
-        + getDailyConsumption(meterId: string)
+        + getConsumptionSummary(meterId: string) Promise
+        + getDailyConsumption(meterId: string) Promise
     }
 
     class EnergyMeterRepository {
-        + create(type: string)
-        + findById(id: string)
-        + findAll()
+        + create(type: string) Promise
+        + findById(id: string) Promise
+        + findAll() Promise
     }
 
     class BootstrapDashboard {
@@ -779,11 +849,28 @@ classDiagram
         + get("/meters/:meterId", dashboardController.show)
     }
 
+    class EnergyReadingModel {
+        <<Mongoose Model>>
+        _id: ObjectId
+        meterId: string
+        value: number
+        timestamp: Date
+    }
+
+    class EnergyMeterModel {
+        <<Mongoose Model>>
+        _id: ObjectId
+        type: string
+        createdAt: Date
+    }
+
     BootstrapDashboard --> DashboardRoutes : instantiates
 
     DashboardController --> DashboardService : depends on
     DashboardService --> DashboardRepository : depends on
+    DashboardRepository --> EnergyReadingModel : use
     DashboardService --> EnergyMeterRepository : depends on
+    EnergyMeterRepository --> EnergyMeterModel : use
 
     BootstrapDashboard --> DashboardRepository : instantiates
     BootstrapDashboard --> EnergyMeterRepository : instantiates
@@ -791,58 +878,6 @@ classDiagram
     BootstrapDashboard --> DashboardController : instantiates
 
     DashboardRoutes --> DashboardController : uses
-```
----
-
-#### 5.1.2 Diagramas de Sequências
-
-```mermaid
-sequenceDiagram
-    participant Frontend
-    participant Route as Dashboard Route
-    participant Controller as DashboardController
-    participant Service as DashboardService
-    participant MeterRepo as EnergyMeterRepository
-    participant DashboardRepo as DashboardRepository
-    participant DB as MongoDB
-    participant Config as Bootstrap/DI
-
-    Note over Config: Configuração de DI
-    Config->>MeterRepo: instancia EnergyMeterRepository
-    Config->>DashboardRepo: instancia DashboardRepository
-    Config->>Service: instancia DashboardService(DashboardRepo, MeterRepo)
-    Config->>Controller: instancia DashboardController(Service)
-    Config-->>Route: exporta Controller
-
-    Frontend->>Route: GET /meters/:meterId
-    Route->>Controller: dashboardController.show(req, res)
-    Controller->>Service: getMeterDashboard(meterId)
-    alt meterId vazio
-        Service-->>Controller: lança AppError("Meter ID is required")
-        Controller-->>Frontend: 400 Bad Request
-    else meterId válido
-        Service->>MeterRepo: findById(meterId)
-        MeterRepo->>DB: busca medidor por ID
-        DB-->>MeterRepo: retorna medidor ou null
-        alt medidor não encontrado
-            MeterRepo-->>Service: null
-            Service-->>Controller: lança AppError("Energy meter not found")
-            Controller-->>Frontend: 404 Not Found
-        else medidor encontrado
-            MeterRepo-->>Service: retorna medidor
-            Service->>DashboardRepo: getConsumptionSummary(meterId)
-            DashboardRepo->>DB: aggregate total e média
-            DB-->>DashboardRepo: retorna summary
-            DashboardRepo-->>Service: summary
-            Service->>DashboardRepo: getDailyConsumption(meterId)
-            DashboardRepo->>DB: aggregate diário
-            DB-->>DashboardRepo: retorna diário
-            DashboardRepo-->>Service: diário
-            Service-->>Controller: dashboard completo
-            Controller-->>Frontend: 200 OK + JSON
-        end
-    end
-
 ```
 
 ## 5.2. Fluxo de gerenciamento de Medidores de Energia
@@ -853,30 +888,36 @@ sequenceDiagram
 classDiagram
     class EnergyMeterController {
         - service: EnergyMeterService
-        + createMeter(req: Request, res: Response)
-        + getAllMeters(req: Request, res: Response)
+        + contructor(service: EnergyMeterService)
+        + createMeter(req: Request, res: Response) Promise
+        + getAllMeters(req: Request, res: Response) Promise
     }
 
     class EnergyMeterService {
         - meterRepository: EnergyMeterRepository
-        + createMeter(type: string)
-        + getAllMeters()
+        + constructor(meterRepository: EnergyMeterRepository)
+        + createMeter(type: string) Promise
+        + getAllMeters() Promise
     }
 
     class EnergyMeterRepository {
-        + create(type: string)
-        + findById(id: string)
-        + findAll()
+        + create(type: string) Promise
+        + findById(id: string) Promise
+        + findAll() Promise
     }
 
     class EnergyMeterFactoryProvider {
-        + getFactory(type: string)
+        - factories: Record~string, EnergyMeterTypeFactory~
+        + getFactory(type: string) EnergyMeterTypeFactory 
     }
 
     class BootstrapEnergy {
         - meterRepository: EnergyMeterRepository
+        - readingRepository: new EnergyReadingRepository
         - meterService: EnergyMeterService
+        - readingService: EnergyReadingService
         - energyMeterController: EnergyMeterController
+        - energyReadingController: EnergyReadingController
     }
 
     class EnergyMeterRoutes {
@@ -884,16 +925,22 @@ classDiagram
         + get("/meters", energyMeterController.getAllMeters)
     }
 
-    %% Relações de Instanciação (DI)
+    class EnergyMeterModel {
+        <<Mongoose Model>>
+        _id: ObjectId
+        type: string
+        createdAt: Date
+    }
+
     BootstrapEnergy --> EnergyMeterRepository : instantiates
     BootstrapEnergy --> EnergyMeterService : instantiates
     BootstrapEnergy --> EnergyMeterController : instantiates
     BootstrapEnergy --> EnergyMeterRoutes : configures
 
-    %% Relações de Dependência
     EnergyMeterController --> EnergyMeterService : depends on
     EnergyMeterService --> EnergyMeterRepository : depends on
     EnergyMeterService --> EnergyMeterFactoryProvider : validates type
+    EnergyMeterRepository --> EnergyMeterModel : use
 
     EnergyMeterRoutes --> EnergyMeterController : uses
 ```
@@ -976,36 +1023,40 @@ sequenceDiagram
 classDiagram
     class EnergyReadingController {
         - service: EnergyReadingService
-        + registerReading(req: Request, res: Response)
+        + constructor(service: EnergyReadingService)
+        + registerReading(req: Request, res: Response) Promise
     }
 
     class EnergyReadingService {
         - meterRepository: EnergyMeterRepository
         - readingRepository: EnergyReadingRepository
-        + registerReading(meterId: string, value: number)
+        + constructor(meterRepository: EnergyMeterRepository, readingRepository: EnergyReadingRepository)
+        + registerReading(meterId: string, value: number) Promise
     }
 
     class EnergyMeterRepository {
-        + create(type: string)
-        + findById(id: string)
-        + findAll()
+        + create(type: string) Promise
+        + findById(id: string) Promise
+        + findAll() Promise
     }
 
     class EnergyReadingRepository {
-        + save(meterId: string, value: number)
-        + findByMeter(meterId: string)
+        + save(meterId: string, value: number) Promise
+        + findByMeter(meterId: string) Promise
     }
 
     class EnergyMeterFactoryProvider {
-        + getFactory(type: string)
+        - factories: Record~string, EnergyMeterTypeFactory~
+        + getFactory(type: string) EnergyMeterTypeFactory 
     }
 
     class EnergyMeter {
-        + addReading(reading: EnergyReading)
+        + addReading(reading: EnergyReading): void
     }
 
     class EnergyReading {
         + value: number
+        + timestamp: Date
     }
 
     class BootstrapEnergy {
@@ -1035,66 +1086,6 @@ classDiagram
     EnergyMeter --> EnergyReading : aggregates
 
     EnergyReadingRoutes --> EnergyReadingController : uses
-```
-
----
-
-### 5.3.2. Diagrama de Sequência – Registro de Leitura (`POST /reading`)
-
-```mermaid
-sequenceDiagram
-    participant Frontend
-    participant Route as EnergyReading Route
-    participant Controller as EnergyReadingController
-    participant Service as EnergyReadingService
-    participant MeterRepo as EnergyMeterRepository
-    participant ReadingRepo as EnergyReadingRepository
-    participant Factory as EnergyMeterFactoryProvider
-    participant Domain as EnergyMeter
-    participant DB as MongoDB
-    participant Config as Bootstrap/DI
-
-    Note over Config: Configuração de Injeção de Dependência
-    Config->>MeterRepo: instancia EnergyMeterRepository
-    Config->>ReadingRepo: instancia EnergyReadingRepository
-    Config->>Service: instancia EnergyReadingService(MeterRepo, ReadingRepo)
-    Config->>Controller: instancia EnergyReadingController(Service)
-    Config-->>Route: exporta Controller
-
-    Frontend->>Route: POST /reading { meterId, value }
-    Route->>Controller: registerReading(req, res)
-    Controller->>Service: registerReading(meterId, value)
-
-    alt meterId ausente
-        Service-->>Controller: lança AppError("Meter ID is required")
-        Controller-->>Frontend: 400 Bad Request
-    else value inválido (<= 0)
-        Service-->>Controller: lança AppError("Consumption value must be greater than zero")
-        Controller-->>Frontend: 400 Bad Request
-    else dados válidos
-        Service->>MeterRepo: findById(meterId)
-        MeterRepo->>DB: busca medidor por ID
-        DB-->>MeterRepo: retorna medidor ou null
-
-        alt medidor não encontrado
-            MeterRepo-->>Service: null
-            Service-->>Controller: lança AppError("Energy meter not found")
-            Controller-->>Frontend: 404 Not Found
-        else medidor encontrado
-            MeterRepo-->>Service: retorna dados do medidor
-            Service->>Factory: getFactory(meterData.type)
-            Factory-->>Service: factory válida
-            Service->>Domain: cria EnergyMeter
-            Service->>Domain: addReading(new EnergyReading(value))
-            Domain-->>Service: análise de consumo + estados + observers
-            Service->>ReadingRepo: save(meterId, value)
-            ReadingRepo->>DB: persiste leitura
-            DB-->>ReadingRepo: leitura salva
-            ReadingRepo-->>Service: confirmação
-            Service-->>Controller: sucesso
-            Controller-->>Frontend: 201 Created
-        end
-    end
 ```
 
 ---
