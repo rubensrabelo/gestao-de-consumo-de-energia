@@ -1,3 +1,4 @@
+import { Observer } from "../observers/Observer";
 import { EnergyReading } from "./EnergyReading";
 import { EnergyMeterAnalyzer } from "./analyzers/EnergyMeterAnalyzer";
 import { EnergyMeterObservers } from "./components/EnergyMeterObservers";
@@ -12,7 +13,7 @@ export class EnergyMeter {
     private readonly analyzer: EnergyMeterAnalyzer
   ) {}
 
-  addObserver(observer: any): void {
+  addObserver(observer: Observer): void {
     this.observers.add(observer);
   }
 

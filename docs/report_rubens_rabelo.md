@@ -6,9 +6,9 @@
 
 ## 1. Introdução
 
-O crescente interesse por soluções que promovam o uso consciente de recursos energéticos tem impulsionado o desenvolvimento de sistemas voltados ao monitoramento e análise do consumo de energia elétrica. Nesse contexto, este projeto propõe o desenvolvimento de um sistema capaz de realizar o cadastro de medidores, o registro de leituras diárias e a apresentação das informações por meio de dashboards, possibilitando uma análise clara e objetiva dos dados de consumo.
+O crescente interesse por soluções que promovam o uso consciente de recursos energéticos tem impulsionado o desenvolvimento de sistemas voltados ao monitoramento e análise do consumo de energia elétrica. Nesse contexto, este projeto propõe o desenvolvimento de um sistema simples capaz de realizar o cadastro de medidores, o registro de leituras diárias e a apresentação das informações por meio de dashboards, possibilitando uma análise clara e objetiva dos dados de consumo.
 
-A solução foi implementada utilizando React com TypeScript no desenvolvimento do front-end, Node.js com Express na construção da API RESTful e MongoDB como banco de dados, buscando uma arquitetura organizada, extensível e alinhada aos princípios e padrões de projeto adotados ao longo do desenvolvimento.
+A solução foi implementada utilizando React com TypeScript no desenvolvimento do front-end, Node.js com TypeScript com Express na construção da API RESTful e MongoDB como banco de dados, buscando uma arquitetura organizada, extensível e alinhada aos princípios e padrões de projeto adotados ao longo do desenvolvimento.
 
 ---
 
@@ -27,8 +27,6 @@ A arquitetura do sistema é dividida em três camadas principais:
 
 ```ts
 frontend/
-├─ public/
-│  └─ index.html
 ├─ src/
 │  ├─ api/
 │  │  └─ services/
@@ -51,7 +49,7 @@ frontend/
 │  │     └─ hooks/
 │  │
 │  ├─ config/          // Configurações gerais, captura do .env
-│  ├─ context/         // Ex.: NotificationContext, AuthContext
+│  ├─ context/         // Ex.: NotificationContext
 │  ├─ layouts/         // Layouts gerais (ex.: PublicLayout)
 │  ├─ router/          // Registro das rotas do frontend
 │  │
@@ -63,7 +61,9 @@ frontend/
 │  ├─ App.tsx
 │  ├─ App.module.css
 │  └─ main.tsx
+├─ index.html
 ├─ .env
+├─ .env.example
 ├─ package.json
 └─ tsconfig.json
 ```
@@ -72,10 +72,10 @@ frontend/
 
 * `api/services` → todas as chamadas HTTP ao backend.
 * `config` → captura variáveis do `.env` e configurações gerais.
-* `components` → UI reutilizável global, como Header, modais, charts, cards e notificações.
+* `components` → UI reutilizável global, como Header e notificações.
 * `pages/*/components` → components específicos daquela página.
 * `pages/*/hooks` → hooks específicos daquela página, sem poluir hooks globais.
-* `context` → contexto global, como socket para notificações ou autenticação.
+* `context` → contexto global, como socket para notificações.
 * `layouts` → componentes de layout, ex.: `PublicLayout`.
 * `router` → registro e gerenciamento das rotas do frontend.
 * `types` → tipagem TypeScript para todos os dados do sistema.
@@ -109,7 +109,7 @@ backend/
 │  │
 │  ├─ infra/
 │  │  ├─ repositories/     // Acesso ao banco (MongoDB)
-│  │  │  └─ models/
+│  │  │  └─ models/        // Modelos referentes ao Mongo
 │  │  ├─ database/         // Conexão e setup do MongoDB
 │  │  └─ socket/           // Socket.IO para notificações em tempo real
 │  │
@@ -141,7 +141,7 @@ backend/
 * `domain/states` → estados ou status possíveis para as entidades.
 * `domain/strategies` → implementação do padrão Strategy para regras variantes.
 * `shared/errors` → erros customizados (ex.: `AppError`) para padronizar respostas da API.
-* `config` → leitura de variáveis de ambiente.
+* `config` → containers para injeção de dependências.
 * `app.ts` → configuração do Express e middlewares.
 * `server.ts` → inicialização do HTTP server + integração com Socket.IO.
 
@@ -192,7 +192,7 @@ export const dashboardController = new DashboardController(dashboardService);
 ```
 
 * `DashboardController` não precisa criar ou conhecer a implementação dos repositórios.
-* `DashboardService` recebe os repositórios via construtor, mantendo o **acoplamento baixo**.
+* `DashboardService` recebe os repositórios via construtor, mantendo o acoplamento baixo.
 * Qualquer mudança na implementação dos repositórios (ex.: trocar MongoDB por PostgreSQL) não afeta os controllers.
 
 ### 3.2. Outros serviços do backend
@@ -243,24 +243,24 @@ O sistema aplica diversos **padrões de projeto** para tornar o código modular,
   * `EnergyReadingRepository` → registro e busca de leituras por medidor.
   * `DashboardRepository` → agregações para total, média e consumo diário.
 
-* Diagrama de Classes - Repositórios de Persistência
+* Diagrama de Classes:
 ```mermaid
 classDiagram
     direction LB
     class DashboardRepository {
-        + getConsumptionSummary(meterId: string)
-        + getDailyConsumption(meterId: string)
+        + getConsumptionSummary(meterId: string) Promise
+        + getDailyConsumption(meterId: string) Promise
     }
 
     class EnergyMeterRepository {
-        + create(type: string): EnergyMeterDocument
-        + findById(id: string): EnergyMeterDocument | null
-        + findAll(): EnergyMeterDocument[]
+        + create(type: string) Promise
+        + findById(id: string) Promise
+        + findAll() Promise
     }
 
     class EnergyReadingRepository {
-        + save(meterId: string, value: number): EnergyReadingDocument
-        + findByMeter(meterId: string): EnergyReadingDocument[]
+        + save(meterId: string, value: number) Promise
+        + findByMeter(meterId: string) Promise
     }
 
     class EnergyMeterModel {
@@ -273,15 +273,15 @@ classDiagram
     class EnergyReadingModel {
         <<Mongoose Model>>
         _id: ObjectId
-        meterId: ObjectId
+        meterId: string
         value: number
         timestamp: Date
     }
 
     %% Dependências de persistência
     DashboardRepository --> EnergyReadingModel : aggregate()
-    EnergyMeterRepository --> EnergyMeterModel : CRUD
-    EnergyReadingRepository --> EnergyReadingModel : CRUD
+    EnergyMeterRepository --> EnergyMeterModel : use
+    EnergyReadingRepository --> EnergyReadingModel : use
 ```
 
 ### 4.2 Service
@@ -293,54 +293,59 @@ classDiagram
   * `EnergyMeterService` → cria medidores, lista todos e valida tipos via `EnergyMeterFactoryProvider`.
   * `EnergyReadingService` → registra leituras, aplica a factory correspondente e atualiza estado do medidor.
   * `DashboardService` → agrega dados de consumo total, médio e diário.
+* Diagrama de Classes:
 
 ```mermaid
 classDiagram
     class DashboardService {
         -dashboardRepository: DashboardRepository
         -meterRepository: EnergyMeterRepository
-        +getMeterDashboard(meterId: string)
+        +constructor(dashboardRepository: DashboardRepository, meterRepository: EnergyMeterRepository) Promise
+        +getMeterDashboard(meterId: string) Promise
     }
 
     class EnergyMeterService {
         -meterRepository: EnergyMeterRepository
-        +getAllMeters()
-        +createMeter(type: string)
+        +constructor(meterRepository: EnergyMeterRepository) 
+        +getAllMeters() Promise
+        +createMeter(type: string) Promise
     }
 
     class EnergyReadingService {
         -meterRepository: EnergyMeterRepository
         -readingRepository: EnergyReadingRepository
-        +registerReading(meterId: string, value: number)
+        +constructor(meterRepository: EnergyMeterRepository, readingRepository: EnergyReadingRepository)
+        +registerReading(meterId: string, value: number) Promise
     }
 
     class DashboardRepository {
-        +getConsumptionSummary(meterId: string)
-        +getDailyConsumption(meterId: string)
+        +getConsumptionSummary(meterId: string) Promise
+        +getDailyConsumption(meterId: string) Promise
     }
 
     class EnergyMeterRepository {
-        +create(type: string)
-        +findById(id: string)
-        +findAll()
+        +create(type: string) Promise
+        +findById(id: string) Promise
+        +findAll() Promise
     }
 
     class EnergyReadingRepository {
-        +save(meterId: string, value: number)
-        +findByMeter(meterId: string)
+        +save(meterId: string, value: number) Promise
+        +findByMeter(meterId: string) Promise
     }
 
     class EnergyMeterFactoryProvider {
-        +getFactory(type: string)
+        +getFactory(type: string) Promise
     }
 
     class EnergyReading {
         +value: number
+        +timestamp: Date
     }
 
     class AppError {
-        +message: string
         +statusCode: number
+        +constructor(message: string, statusCode)
     }
 
     DashboardService --> DashboardRepository
@@ -368,62 +373,65 @@ classDiagram
   * `EnergyReadingController` → registrar leitura.
   * `DashboardController` → retorna dashboard de consumo agregado.
 * Tratamento de erros padronizado via `AppError`.
+* Diagrama de Classes:
 
 ```mermaid
 classDiagram
     class DashboardController {
         -dashboardService: DashboardService
-        +show(req: Request, res: Response)
+        +constructor(dashboardService: DashboardService)
+        +show(req: Request, res: Response) Promise
     }
 
     class EnergyMeterController {
         -service: EnergyMeterService
-        +createMeter(req: Request, res: Response)
-        +getAllMeters(req: Request, res: Response)
-        -handleError(error: unknown, res: Response)
+        +constructor(service: EnergyMeterService) Promise
+        +createMeter(req: Request, res: Response) Promise
+        +getAllMeters(req: Request, res: Response) Promise
+        -handleError(error: unknown, res: Response) Response
     }
 
     class EnergyReadingController {
         -service: EnergyReadingService
-        +registerReading(req: Request, res: Response)
-        -handleError(error: unknown, res: Response)
+        +constructor(service: EnergyReadingService)
+        +registerReading(req: Request, res: Response) Promise
+        -handleError(error: unknown, res: Response) Response
     }
 
     class DashboardService {
-        +getMeterDashboard(meterId: string)
+        -dashboardRepository: DashboardRepository
+        -meterRepository: EnergyMeterRepository
+        +constructor(dashboardRepository: DashboardRepository, meterRepository: EnergyMeterRepository)
+        +getMeterDashboard(meterId: string) Promise
     }
 
     class EnergyMeterService {
-        +createMeter(type: string)
-        +getAllMeters()
+        -meterRepository: EnergyMeterRepository
+        +constructor(meterRepository: EnergyMeterRepository)
+        +getAllMeters() Promise
+        +createMeter(type: string) Promise
     }
 
     class EnergyReadingService {
-        +registerReading(meterId: string, value: number)
+        -meterRepository: EnergyMeterRepository
+        -readingRepository: EnergyReadingRepository
+        +constructor(meterRepository: EnergyMeterRepository, readingRepository: EnergyReadingRepository)
+        +registerReading(meterId: string, value: number) Promise
     }
 
     class AppError {
-        +message: string
         +statusCode: number
+        +constructor(message: string, statusCode)
     }
-
-    class Request
-    class Response
 
     DashboardController --> DashboardService
     DashboardController --> AppError
-    DashboardController --> Request
-    DashboardController --> Response
-
+    
     EnergyMeterController --> EnergyMeterService
     EnergyMeterController --> AppError
-    EnergyMeterController --> Request
-    EnergyMeterController --> Response
-
+    
     EnergyReadingController --> EnergyReadingService
     EnergyReadingController --> AppError
-    EnergyReadingController --> Request
-    EnergyReadingController --> Response
 ```
 
 ### 4.4 Factory
@@ -435,36 +443,38 @@ classDiagram
   * `EnergyMeterFactory` → cria instâncias de `EnergyMeter` com observers, estado e analisador.
   * `ResidentialMeterFactory` e `SchoolMeterFactory` → encapsulam estratégias de cálculo específicas.
   * `EnergyMeterFactoryProvider` → provê a factory correta com base no tipo do medidor.
-* Exemplo: a factory adiciona automaticamente os observers necessários:
+* Diagrama de Classes:
 
 ```mermaid
 classDiagram
     class EnergyMeter
 
     class EnergyMeterFactory {
-        +create(strategy: ConsumptionCalculationStrategy): EnergyMeter
+        +create(strategy: ConsumptionCalculationStrategy) EnergyMeter
     }
 
     class EnergyMeterFactoryProvider {
         -factories: Record~string, EnergyMeterTypeFactory~
-        +getFactory(type: string): EnergyMeterTypeFactory
+        +getFactory(type: string) EnergyMeterTypeFactory
     }
 
 
     class EnergyMeterTypeFactory {
         <<interface>>
-        +create(): EnergyMeter
+        +create() EnergyMeter
     }
 
 
     class ResidentialMeterFactory {
         -strategy: ConsumptionCalculationStrategy
-        +create(): EnergyMeter
+        +constructor(strategy: ConsumptionCalculationStrategy)
+        +create() EnergyMeter
     }
 
     class SchoolMeterFactory {
         -strategy: ConsumptionCalculationStrategy
-        +create(): EnergyMeter
+        +constructor(strategy: ConsumptionCalculationStrategy)
+        +create() EnergyMeter
     }
 
 
@@ -521,25 +531,25 @@ classDiagram
     * O `NotificationContext` mantém uma lista de notificações e atualiza o componente `NotificationToast`.
     * Usuário recebe mensagens em tempo real quando eventos de medidor acontecem (mudança de estado, alertas).
   * Observers registrados no `EnergyMeter` recebem eventos de mudanças de estado ou leituras.
-* Exemplo de observer para front-end:
+* Diagrama de Classes:
 
 ```mermaid
 classDiagram
     class Observer {
         <<interface>>
-        +update(event: string): void
+        +update(event: string) void
     }
 
     class AlertObserver {
-        +update(event: string): void
+        +update(event: string) void
     }
 
     class HistoryObserver {
-        +update(event: string): void
+        +update(event: string) void
     }
 
     class FrontendNotificationObserver {
-        +update(event: string): void
+        +update(event: string) void
     }
 
     class SocketEmitter {
@@ -575,15 +585,15 @@ classDiagram
 
     class ConsumptionCalculationStrategy {
         <<interface>>
-        + calculate(readings: EnergyReading[]): number
+        + calculate(readings: EnergyReading[]) number
     }
 
     class ResidentialConsumptionStrategy {
-        + calculate(readings: EnergyReading[]): number
+        + calculate(readings: EnergyReading[]) number
     }
 
     class SchoolConsumptionStrategy {
-        + calculate(readings: EnergyReading[]): number
+        + calculate(readings: EnergyReading[]) number
     }
 
     ConsumptionCalculationStrategy <|.. ResidentialConsumptionStrategy
@@ -620,24 +630,24 @@ classDiagram
 
     class ConsumptionState {
         <<interface>>
-        + handle(context: EnergyMeter, value: number): ConsumptionStateType | null
+        + handle(context: EnergyMeter, value: number) ConsumptionStateType | null
     }
 
     class NormalState {
-        + handle(context: EnergyMeter, value: number): ConsumptionStateType | null
+        + handle(context: EnergyMeter, value: number) ConsumptionStateType | null
     }
 
     class WarningState {
-        + handle(context: EnergyMeter, value: number): ConsumptionStateType | null
+        + handle(context: EnergyMeter, value: number) ConsumptionStateType | null
     }
 
     class CriticalState {
-        + handle(context: EnergyMeter, value: number): ConsumptionStateType | null
+        + handle(context: EnergyMeter, value: number) ConsumptionStateType | null
     }
 
     class ConsumptionStateProvider {
-        - states: Map<ConsumptionStateType, ConsumptionState>
-        + get(type: ConsumptionStateType): ConsumptionState
+        - states: Record~ConsumptionStateType, ConsumptionState~
+        + get(type: ConsumptionStateType) ConsumptionState
     }
 
     ConsumptionState <|.. NormalState
@@ -661,34 +671,36 @@ classDiagram
 
 ```mermaid
 classDiagram
-    direction LR
+    direction TB
 
     class EnergyMeter {
         - readings: EnergyMeterReadings
         - observers: EnergyMeterObservers
         - state: EnergyMeterState
         - analyzer: EnergyMeterAnalyzer
-        + addObserver(observer: Observer)
-        + notify(event: string)
-        + addReading(reading: EnergyReading)
-        - analyze()
+        + constructor( readings: EnergyMeterReadings, observers: EnergyMeterObservers, state: EnergyMeterState, analyzer: EnergyMeterAnalyzer)
+        + addObserver(observer: Observer): void
+        + notify(event: string): void
+        + addReading(reading: EnergyReading): void
+        - analyze(): void
     }
 
     class EnergyMeterAnalyzer {
         - strategy: ConsumptionCalculationStrategy
+        + constructor(strategy: ConsumptionCalculationStrategy)
         + calculate(readings: EnergyReading[]): number
     }
 
     class EnergyMeterReadings {
         - readings: EnergyReading[]
-        + add(reading: EnergyReading)
-        + getAll(): EnergyReading[]
+        + add(reading: EnergyReading) void
+        + getAll() EnergyReading[]
     }
 
     class EnergyMeterObservers {
         - observers: Observer[]
-        + add(observer: Observer)
-        + notify(event: string)
+        + add(observer: Observer) void
+        + notify(event: string) void
     }
 
     class EnergyMeterState {
