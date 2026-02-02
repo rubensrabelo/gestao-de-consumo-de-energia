@@ -1,11 +1,11 @@
-import { DashboardRepository } from "../../infra/repositories/DashboardRepository";
-import { EnergyMeterRepository } from "../../infra/repositories/EnergyMeterRepository";
+import type { IEnergyMeterRepository } from "../../infra/repositories/IEnergyMeterRepository";
+import type { IDashboardRepository } from "../../infra/repositories/IDashboardRepository";
 import { AppError } from "../../shared/errors/AppError";
 
 export class DashboardService {
   constructor(
-    private dashboardRepository: DashboardRepository,
-    private meterRepository: EnergyMeterRepository
+    private dashboardRepository: IDashboardRepository,
+    private meterRepository: IEnergyMeterRepository
   ) {}
 
   async getMeterDashboard(meterId: string) {
@@ -33,7 +33,7 @@ export class DashboardService {
         summary.averageConsumption.toFixed(2)
       ),
       dailyConsumption: daily.map(item => ({
-        date: item._id.day,
+        date: item.day,
         total: item.total
       }))
     };

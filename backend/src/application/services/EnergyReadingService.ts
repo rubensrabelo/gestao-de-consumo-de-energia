@@ -1,13 +1,13 @@
 import { EnergyReading } from "../../domain/entities/EnergyReading";
 import { EnergyMeterFactoryProvider } from "../../domain/factories/EnergyMeterFactoryProvider";
-import { EnergyMeterRepository } from "../../infra/repositories/EnergyMeterRepository";
-import { EnergyReadingRepository } from "../../infra/repositories/EnergyReadingRepository";
+import { IEnergyMeterRepository } from "../../infra/repositories/IEnergyMeterRepository";
 import { AppError } from "../../shared/errors/AppError";
+import { IEnergyReadingRepository } from "../../infra/repositories/IEnergyReadingRepository";
 
 export class EnergyReadingService {
   constructor(
-    private meterRepository: EnergyMeterRepository,
-    private readingRepository: EnergyReadingRepository
+    private meterRepository: IEnergyMeterRepository,
+    private readingRepository: IEnergyReadingRepository
   ) {}
 
   async registerReading(meterId: string, value: number): Promise<void> {

@@ -1,30 +1,21 @@
 import { EnergyMeterFactoryProvider } from "../../domain/factories/EnergyMeterFactoryProvider";
-import { EnergyMeterRepository } from "../../infra/repositories/EnergyMeterRepository";
+import type { IEnergyMeterRepository } from "../../infra/repositories/IEnergyMeterRepository";
 import { AppError } from "../../shared/errors/AppError";
+import { EnergyMeterType } from "../../types/EnergyMeterType";
 
 export class EnergyMeterService {
-  constructor(private meterRepository: EnergyMeterRepository) {}
+  constructor(private meterRepository: IEnergyMeterRepository) {}
 
-  async getAllMeters(): Promise<{ id: string; type: string; createdAt: Date }[]> {
-    const meters = await this.meterRepository.findAll();
-    return meters.map((m: any) => ({
-      id: m._id.toString(),
-      type: m.type,
-      createdAt: m.createdAt
-    }));
+  async getAllMeters(): Promise<EnergyMeterType[]> {
+    return await this.meterRepository.findAll();
   }
 
-  async createMeter(type: string): Promise<{ id: string; type: string; createdAt: Date }> {
-    if (!type) throw new AppError("Meter type is required");
+  async createMeter(type: string): Promise<EnergyMeterType> {
+    if (!type)
+      throw new AppError("Meter type is required");
 
     EnergyMeterFactoryProvider.getFactory(type);
 
-    const savedMeter = await this.meterRepository.create(type);
-
-    return {
-      id: savedMeter._id.toString(),
-      type: savedMeter.type,
-      createdAt: savedMeter.createdAt
-    };
+    return await this.meterRepository.create(type);
   }
 }
