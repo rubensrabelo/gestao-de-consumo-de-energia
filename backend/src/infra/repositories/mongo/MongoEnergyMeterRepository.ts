@@ -5,7 +5,7 @@ import type { EnergyMeterType } from "../../../types/EnergyMeterType";
 export class MongoEnergyMeterRepository implements IEnergyMeterRepository {
   async create(type: string): Promise<EnergyMeterType> {
     const meter = new EnergyMeterModel({ type });
-    return meter.save();
+    return await meter.save();
   }
 
   async findById(id: string): Promise<EnergyMeterType | null> {

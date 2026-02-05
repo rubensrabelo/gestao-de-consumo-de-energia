@@ -1,6 +1,7 @@
 import type { IEnergyMeterRepository } from "../../infra/repositories/IEnergyMeterRepository";
 import type { IDashboardRepository } from "../../infra/repositories/IDashboardRepository";
-import { AppError } from "../../shared/errors/AppError";
+import { ValidationError } from "../../shared/errors/ValidationError";
+import { MeterNotFoundError } from "./errors/MeterNotFoundError";
 
 export class DashboardService {
   constructor(
@@ -10,13 +11,13 @@ export class DashboardService {
 
   async getMeterDashboard(meterId: string) {
     if (!meterId) {
-      throw new AppError("Meter ID is required");
+      throw new ValidationError("Meter ID is required");
     }
 
     const meter = await this.meterRepository.findById(meterId);
 
     if (!meter) {
-      throw new AppError("Energy meter not found", 404);
+      throw new MeterNotFoundError(meterId);
     }
 
     const summary =

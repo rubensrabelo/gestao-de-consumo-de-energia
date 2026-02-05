@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { DashboardService } from "../../application/services/DashboardService";
-import { AppError } from "../../shared/errors/AppError";
+import { ValidationError } from "../../shared/errors/ValidationError";
 
 export class DashboardController {
   constructor(private dashboardService: DashboardService) {}
@@ -9,7 +9,9 @@ export class DashboardController {
     const { meterId } = req.params;
 
     if (Array.isArray(meterId)) {
-      throw new AppError("Invalid meter ID format", 400);
+      throw new ValidationError(
+        "meterId must be a single string parameter"
+      );
     }
 
     const dashboard =

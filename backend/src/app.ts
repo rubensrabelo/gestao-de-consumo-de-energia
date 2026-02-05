@@ -6,6 +6,7 @@ import { connectMongo } from "./infra/database/mongo";
 import energyMeterRoutes from "./api/routes/energyMeter.routes";
 import energyReadingRoutes from "./api/routes/energyReading.routes";
 import dashboardRoutes from "./api/routes/dashboard.routes";
+import { errorHandler } from "./shared/middlewares/errorHandler";
 
 dotenv.config();
 
@@ -20,5 +21,7 @@ connectMongo();
 app.use("/energy", energyMeterRoutes);
 app.use("/energy", energyReadingRoutes);
 app.use("/dashboard", dashboardRoutes);
+
+app.use(errorHandler);
 
 export default app;
