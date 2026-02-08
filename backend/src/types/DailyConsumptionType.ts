@@ -1,4 +1,4 @@
 export type DailyConsumptionType = {
-  day: string;
+  date: string;
   total: number;
 };

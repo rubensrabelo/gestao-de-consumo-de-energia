@@ -1,15 +1,17 @@
-import type { IEnergyMeterRepository } from "../../infra/repositories/IEnergyMeterRepository";
-import type { IDashboardRepository } from "../../infra/repositories/IDashboardRepository";
-import { ValidationError } from "../../shared/errors/ValidationError";
-import { MeterNotFoundError } from "./errors/MeterNotFoundError";
+import type { IEnergyMeterRepository } from "../../../infra/repositories/IEnergyMeterRepository";
+import type { IDashboardRepository } from "../../../infra/repositories/IDashboardRepository";
+import { ValidationError } from "../../../shared/errors/ValidationError";
+import { MeterNotFoundError } from "../errors/MeterNotFoundError";
+import { IDashboardService } from "../IDashboardService";
+import { MeterDashboardResponse } from "../../../types/MeterDashboardResponse";
 
-export class DashboardService {
+export class DashboardService implements IDashboardService {
   constructor(
     private dashboardRepository: IDashboardRepository,
     private meterRepository: IEnergyMeterRepository
   ) {}
 
-  async getMeterDashboard(meterId: string) {
+  async getMeterDashboard(meterId: string): Promise<MeterDashboardResponse> {
     if (!meterId) {
       throw new ValidationError("Meter ID is required");
     }
@@ -34,7 +36,7 @@ export class DashboardService {
         summary.averageConsumption.toFixed(2)
       ),
       dailyConsumption: daily.map(item => ({
-        date: item.day,
+        date: item.date,
         total: item.total
       }))
     };

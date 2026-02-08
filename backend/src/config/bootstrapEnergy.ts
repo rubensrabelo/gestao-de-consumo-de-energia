@@ -1,5 +1,5 @@
-import { EnergyMeterService } from "../application/services/EnergyMeterService";
-import { EnergyReadingService } from "../application/services/EnergyReadingService";
+import { EnergyMeterService } from "../application/services/impl/EnergyMeterService";
+import { EnergyReadingService } from "../application/services/impl/EnergyReadingService";
 import { EnergyMeterController } from "../api/controllers/EnergyMeterController";
 import { EnergyReadingController } from "../api/controllers/EnergyReadingController";
 import { MongoEnergyMeterRepository } from "../infra/repositories/mongo/MongoEnergyMeterRepository";

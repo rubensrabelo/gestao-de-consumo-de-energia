@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { EnergyMeterService } from "../../application/services/EnergyMeterService";
+import { IEnergyMeterService } from "../../application/services/IEnergyMeterService";
 
 export class EnergyMeterController {
-  constructor(private service: EnergyMeterService) { }
+  constructor(private service: IEnergyMeterService) { }
 
   async createMeter(req: Request, res: Response): Promise<Response> {
     const { type } = req.body;

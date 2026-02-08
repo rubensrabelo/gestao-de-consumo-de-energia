@@ -4,7 +4,7 @@ import { IDashboardRepository } from "../IDashboardRepository";
 import { EnergyReadingModel } from "../models/EnergyReading";
 
 interface IMongoDailyAggregation {
-  _id: { day: string };
+  _id: { date: string };
   total: number;
 }
 
@@ -27,14 +27,14 @@ export class MongoDashboardRepository implements IDashboardRepository {
     const result = await EnergyReadingModel.aggregate([
       { $match: { meterId } },
       { $group: {
-          _id: { day: { $dateToString: { format: "%Y-%m-%d", date: "$timestamp" } } },
+          _id: { date: { $dateToString: { format: "%Y-%m-%d", date: "$timestamp" } } },
           total: { $sum: "$value" }
       }},
       { $sort: { "_id.day": 1 } }
     ]) as IMongoDailyAggregation[]; 
 
     return result.map((item: IMongoDailyAggregation) => ({
-      day: item._id.day,
+      date: item._id.date,
       total: item.total
     }));
   }

@@ -1,5 +1,5 @@
 import { MongoDashboardRepository } from "../infra/repositories/mongo/MongoDashboardRepository";
-import { DashboardService } from "../application/services/DashboardService";
+import { DashboardService } from "../application/services/impl/DashboardService";
 import { DashboardController } from "../api/controllers/DashboardController";
 import { MongoEnergyMeterRepository } from "../infra/repositories/mongo/MongoEnergyMeterRepository";
 

@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import { DashboardService } from "../../application/services/DashboardService";
 import { ValidationError } from "../../shared/errors/ValidationError";
+import { IDashboardService } from "../../application/services/IDashboardService";
 
 export class DashboardController {
-  constructor(private dashboardService: DashboardService) {}
+  constructor(private dashboardService: IDashboardService) {}
 
-  async show(req: Request, res: Response) {
+  async show(req: Request, res: Response): Promise<Response> {
     const { meterId } = req.params;
 
     if (Array.isArray(meterId)) {
